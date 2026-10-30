@@ -4,199 +4,409 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Egg Monitor</title>
+
 <style>
-* { box-sizing: border-box; }
+:root {
+  color-scheme: dark;
+  --bg: #090d16;
+  --panel: #121a29;
+  --border: #253248;
+  --text: #edf3ff;
+  --muted: #91a0b8;
+  --accent: #8b75ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  padding: 24px 16px;
-  background: #f5f6f8;
-  color: #202124;
+  padding: 22px;
+  background: var(--bg);
+  color: var(--text);
   font-family: Arial, sans-serif;
 }
-main { max-width: 850px; margin: auto; }
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
+
+header, main, footer {
+  max-width: 1100px;
+  margin: auto;
 }
-h1 { font-size: 25px; margin: 0; }
-.status {
-  background: #e5f5eb;
-  color: #21834a;
-  padding: 7px 12px;
-  border-radius: 20px;
+
+h1 {
+  margin-bottom: 5px;
+}
+
+.subtitle, .muted {
+  color: var(--muted);
+}
+
+.demo {
+  display: inline-block;
+  margin: 14px 0;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: #332b16;
+  color: #ffdb75;
   font-size: 12px;
 }
-.subtitle { color: #888; font-size: 12px; }
-.stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 20px 0;
-}
-.card, .results {
-  background: white;
-  border-radius: 12px;
-  padding: 18px;
-}
-.number { font-size: 27px; font-weight: bold; }
-.muted { color: #888; font-size: 13px; }
+
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin: 18px 0;
 }
-button {
-  border: 1px solid #ddd;
-  background: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+
+input, select {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 12px;
+  background: var(--panel);
+  color: var(--text);
 }
-button.active {
-  background: #222;
-  color: white;
-  border-color: #222;
+
+input {
+  flex: 1;
+  min-width: 180px;
 }
-.result {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #eee;
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
 }
-.result:last-child { border: 0; }
-.scale { font-size: 20px; font-weight: bold; }
-.empty {
-  text-align: center;
-  color: #888;
-  padding: 35px 10px;
+
+.stat, .egg {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 16px;
 }
-footer {
-  text-align: center;
-  color: #999;
+
+.stat strong {
+  display: block;
+  font-size: 23px;
+  margin-top: 7px;
+}
+
+.eggs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 14px;
+}
+
+.egg h2 {
+  margin: 0 0 7px;
+  font-size: 19px;
+}
+
+.scale {
+  font-size: 28px;
+  font-weight: bold;
+  color: #b7a8ff;
+  margin: 13px 0;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #252d40;
   font-size: 12px;
+  margin: 3px;
+}
+
+.server {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 25px;
+  text-align: center;
+  grid-column: 1 / -1;
+}
+
+footer {
   margin-top: 25px;
+  color: var(--muted);
+  font-size: 12px;
 }
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <h1>Egg Monitor</h1>
-    <span class="status">Conexión pendiente</span>
-  </header>
 
-  <p class="subtitle">MONITOREO DE HUEVOS Y SERVIDORES</p>
-
-  <section class="stats">
-    <div class="card">
-      <div class="number" id="best">—</div>
-      <div class="muted">Mayor escala</div>
-    </div>
-    <div class="card">
-      <div class="number" id="total">0</div>
-      <div class="muted">Registros</div>
-    </div>
-  </section>
-
-  <h3>Resultados</h3>
-
-  <div class="controls">
-    <button class="active" onclick="sortBy('scale',this)">
-      Mayor escala
-    </button>
-    <button onclick="sortBy('recent',this)">
-      Más recientes
-    </button>
-    <button onclick="sortBy('rarity',this)">
-      Rareza
-    </button>
+<header>
+  <h1>🥚 Egg Monitor</h1>
+  <div class="subtitle">
+    Monitor de huevos y servidores de Roblox
   </div>
 
-  <section class="results" id="results">
-    <div class="empty">
-      <p>Esperando conexión con Eggstock</p>
-      <small>Los resultados aparecerán aquí automáticamente.</small>
+  <div class="demo">
+    MODO DEMOSTRACIÓN · DATOS DE PRUEBA
+  </div>
+</header>
+
+<main>
+
+  <section class="stats">
+    <div class="stat">
+      <span class="muted">Huevos encontrados</span>
+      <strong id="total">0</strong>
+    </div>
+
+    <div class="stat">
+      <span class="muted">Mayor escala</span>
+      <strong id="highest">0</strong>
+    </div>
+
+    <div class="stat">
+      <span class="muted">Servidores</span>
+      <strong id="servers">0</strong>
     </div>
   </section>
 
-  <footer>
-    Egg Monitor · Panel independiente
-  </footer>
+  <section class="controls">
+
+    <input
+      id="search"
+      placeholder="Buscar animal o zona..."
+      aria-label="Buscar"
+    >
+
+    <select id="rarity">
+      <option value="">Todas las rarezas</option>
+      <option value="Eternal">Eternal</option>
+      <option value="Divine">Divine</option>
+      <option value="Mythic">Mythic</option>
+      <option value="Legendary">Legendary</option>
+    </select>
+
+    <select id="sort">
+      <option value="desc">Mayor escala primero</option>
+      <option value="asc">Menor escala primero</option>
+      <option value="name">Nombre A-Z</option>
+    </select>
+
+  </section>
+
+  <section class="eggs" id="eggs"></section>
+
 </main>
 
+<footer>
+  Egg Monitor · Los registros son ficticios y no representan
+  servidores activos ni disponibilidad real.
+</footer>
+<body>
+
+<header>
+  <h1>🥚 Egg Monitor</h1>
+  <div class="subtitle">
+    Monitor de huevos y servidores de Roblox
+  </div>
+
+  <div class="demo">
+    MODO DEMOSTRACIÓN · DATOS DE PRUEBA
+  </div>
+</header>
+
+<main>
+
+  <section class="stats">
+    <div class="stat">
+      <span class="muted">Huevos encontrados</span>
+      <strong id="total">0</strong>
+    </div>
+
+    <div class="stat">
+      <span class="muted">Mayor escala</span>
+      <strong id="highest">0</strong>
+    </div>
+
+    <div class="stat">
+      <span class="muted">Servidores</span>
+      <strong id="servers">0</strong>
+    </div>
+  </section>
+
+  <section class="controls">
+
+    <input
+      id="search"
+      placeholder="Buscar animal o zona..."
+      aria-label="Buscar"
+    >
+
+    <select id="rarity">
+      <option value="">Todas las rarezas</option>
+      <option value="Eternal">Eternal</option>
+      <option value="Divine">Divine</option>
+      <option value="Mythic">Mythic</option>
+      <option value="Legendary">Legendary</option>
+    </select>
+
+    <select id="sort">
+      <option value="desc">Mayor escala primero</option>
+      <option value="asc">Menor escala primero</option>
+      <option value="name">Nombre A-Z</option>
+    </select>
+
+  </section>
+
+  <section class="eggs" id="eggs"></section>
+
+</main>
+
+<footer>
+  Egg Monitor · Los registros son ficticios y no representan
+  servidores activos ni disponibilidad real.
+</footer>
 <script>
-let eggs = [];
-
-function sortBy(type, button) {
-  document.querySelectorAll('button').forEach(b =>
-    b.classList.remove('active')
-  );
-  button.classList.add('active');
-
-  if (type === 'scale') {
-    eggs.sort((a,b) => b.best_scale - a.best_scale);
+const demoEggs = [
+  {
+    area: "Titan Temple",
+    animal: "King Kong",
+    rarity: "Eternal",
+    best_scale: 10.511,
+    servers: [
+      {scale: 10.511, players: 2, maxPlayers: 7, age_s: 14},
+      {scale: 2.900, players: 3, maxPlayers: 7, age_s: 32}
+    ]
+  },
+  {
+    area: "Cosmic Island",
+    animal: "Unicorn",
+    rarity: "Divine",
+    best_scale: 12.063,
+    servers: [
+      {scale: 12.063, players: 4, maxPlayers: 7, age_s: 8},
+      {scale: 11.597, players: 2, maxPlayers: 7, age_s: 21},
+      {scale: 6.074, players: 5, maxPlayers: 7, age_s: 45}
+    ]
+  },
+  {
+    area: "Mystic Forest",
+    animal: "Phoenix",
+    rarity: "Mythic",
+    best_scale: 8.420,
+    servers: [
+      {scale: 8.420, players: 1, maxPlayers: 7, age_s: 18}
+    ]
+  },
+  {
+    area: "Ancient Valley",
+    animal: "Dragon",
+    rarity: "Legendary",
+    best_scale: 6.750,
+    servers: [
+      {scale: 6.750, players: 3, maxPlayers: 7, age_s: 27}
+    ]
   }
+];
 
-  if (type === 'recent') {
-    eggs.sort((a,b) =>
-      Math.min(...a.servers.map(s => s.age_s)) -
-      Math.min(...b.servers.map(s => s.age_s))
+const search = document.getElementById("search");
+const rarity = document.getElementById("rarity");
+const sort = document.getElementById("sort");
+const container = document.getElementById("eggs");
+
+function render() {
+  let data = demoEggs.filter(egg => {
+    const term = search.value.toLowerCase();
+
+    return (
+      egg.animal.toLowerCase().includes(term) ||
+      egg.area.toLowerCase().includes(term)
+    ) && (
+      !rarity.value || egg.rarity === rarity.value
+    );
+  });
+
+  if (sort.value === "desc") {
+    data.sort((a, b) => b.best_scale - a.best_scale);
+  } else if (sort.value === "asc") {
+    data.sort((a, b) => a.best_scale - b.best_scale);
+  } else {
+    data.sort((a, b) =>
+      a.animal.localeCompare(b.animal)
     );
   }
 
-  if (type === 'rarity') {
-    eggs.sort((a,b) => a.rarity.localeCompare(b.rarity));
-  }
+  document.getElementById("total").textContent = data.length;
 
-  render();
-}
+  document.getElementById("highest").textContent =
+    data.length
+      ? Math.max(...data.map(e => e.best_scale)).toFixed(3)
+      : "0";
 
-function render() {
-  document.getElementById('total').textContent = eggs.length;
-
-  document.getElementById('best').textContent =
-    eggs.length
-      ? Math.max(...eggs.map(e => e.best_scale)).toFixed(3)
-      : '—';
-
-  const container = document.getElementById('results');
-
-  if (!eggs.length) {
-    container.innerHTML =
-      '<div class="empty">Esperando registros de Eggstock</div>';
-    return;
-  }
+  document.getElementById("servers").textContent =
+    data.reduce((sum, egg) => sum + egg.servers.length, 0);
 
   container.replaceChildren();
 
-  eggs.forEach(egg => {
-    const item = document.createElement('div');
-    item.className = 'result';
+  if (!data.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No se encontraron huevos.";
+    container.append(empty);
+    return;
+  }
+  data.forEach(egg => {
+    const card = document.createElement("article");
+    card.className = "egg";
 
-    const info = document.createElement('div');
-    const name = document.createElement('strong');
-    name.textContent = egg.animal;
+    const title = document.createElement("h2");
+    title.textContent = egg.animal;
+    card.append(title);
 
-    const details = document.createElement('div');
-    details.className = 'muted';
-    details.textContent = egg.area + ' · ' + egg.rarity;
+    const area = document.createElement("div");
+    area.className = "muted";
+    area.textContent = egg.area;
+    card.append(area);
 
-    info.append(name, details);
+    const scale = document.createElement("div");
+    scale.className = "scale";
+    scale.textContent = egg.best_scale.toFixed(3);
+    card.append(scale);
 
-    const scale = document.createElement('div');
-    scale.className = 'scale';
-    scale.textContent = Number(egg.best_scale).toFixed(3);
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = egg.rarity;
+    card.append(tag);
 
-    item.append(info, scale);
-    container.append(item);
+    egg.servers
+      .slice()
+      .sort((a, b) => b.scale - a.scale)
+      .forEach((server, index) => {
+        const box = document.createElement("div");
+        box.className = "server";
+
+        box.textContent =
+          `Servidor ${index + 1} · Escala ${server.scale.toFixed(3)} · ` +
+          `${server.players}/${server.maxPlayers} jugadores · ` +
+          `Hace ${server.age_s} s`;
+
+        card.append(box);
+      });
+
+    container.append(card);
   });
 }
 
+[search, rarity, sort].forEach(element => {
+  element.addEventListener("input", render);
+});
+
 render();
 </script>
+
 </body>
 </html>
+</script>
+  
