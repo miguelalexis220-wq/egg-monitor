@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Egg Monitor</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 16px;
+  background: #f5f6f8;
+  color: #202124;
+  font-family: Arial, sans-serif;
+}
+main { max-width: 850px; margin: auto; }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+h1 { font-size: 25px; margin: 0; }
+.status {
+  background: #e5f5eb;
+  color: #21834a;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+.subtitle { color: #888; font-size: 12px; }
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+}
+.card, .results {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+}
+.number { font-size: 27px; font-weight: bold; }
+.muted { color: #888; font-size: 13px; }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+button {
+  border: 1px solid #ddd;
+  background: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button.active {
+  background: #222;
+  color: white;
+  border-color: #222;
+}
+.result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+}
+.result:last-child { border: 0; }
+.scale { font-size: 20px; font-weight: bold; }
+.empty {
+  text-align: center;
+  color: #888;
+  padding: 35px 10px;
+}
+footer {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  margin-top: 25px;
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Egg Monitor</h1>
+    <span class="status">Conexión pendiente</span>
+  </header>
+
+  <p class="subtitle">MONITOREO DE HUEVOS Y SERVIDORES</p>
+
+  <section class="stats">
+    <div class="card">
+      <div class="number" id="best">—</div>
+      <div class="muted">Mayor escala</div>
+    </div>
+    <div class="card">
+      <div class="number" id="total">0</div>
+      <div class="muted">Registros</div>
+    </div>
+  </section>
+
+  <h3>Resultados</h3>
+
+  <div class="controls">
+    <button class="active" onclick="sortBy('scale',this)">
+      Mayor escala
+    </button>
+    <button onclick="sortBy('recent',this)">
+      Más recientes
+    </button>
+    <button onclick="sortBy('rarity',this)">
+      Rareza
+    </button>
+  </div>
+
+  <section class="results" id="results">
+    <div class="empty">
+      <p>Esperando conexión con Eggstock</p>
+      <small>Los resultados aparecerán aquí automáticamente.</small>
+    </div>
+  </section>
+
+  <footer>
+    Egg Monitor · Panel independiente
+  </footer>
+</main>
+
+<script>
+let eggs = [];
+
+function sortBy(type, button) {
+  document.querySelectorAll('button').forEach(b =>
+    b.classList.remove('active')
+  );
+  button.classList.add('active');
+
+  if (type === 'scale') {
+    eggs.sort((a,b) => b.best_scale - a.best_scale);
+  }
+
+  if (type === 'recent') {
+    eggs.sort((a,b) =>
+      Math.min(...a.servers.map(s => s.age_s)) -
+      Math.min(...b.servers.map(s => s.age_s))
+    );
+  }
+
+  if (type === 'rarity') {
+    eggs.sort((a,b) => a.rarity.localeCompare(b.rarity));
+  }
+
+  render();
+}
+
+function render() {
+  document.getElementById('total').textContent = eggs.length;
+
+  document.getElementById('best').textContent =
+    eggs.length
+      ? Math.max(...eggs.map(e => e.best_scale)).toFixed(3)
+      : '—';
+
+  const container = document.getElementById('results');
+
+  if (!eggs.length) {
+    container.innerHTML =
+      '<div class="empty">Esperando registros de Eggstock</div>';
+    return;
+  }
+
+  container.replaceChildren();
+
+  eggs.forEach(egg => {
+    const item = document.createElement('div');
+    item.className = 'result';
+
+    const info = document.createElement('div');
+    const name = document.createElement('strong');
+    name.textContent = egg.animal;
+
+    const details = document.createElement('div');
+    details.className = 'muted';
+    details.textContent = egg.area + ' · ' + egg.rarity;
+
+    info.append(name, details);
+
+    const scale = document.createElement('div');
+    scale.className = 'scale';
+    scale.textContent = Number(egg.best_scale).toFixed(3);
+
+    item.append(info, scale);
+    container.append(item);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
