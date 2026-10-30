@@ -404,6 +404,40 @@ function render() {
 });
 
 render();
+  // IMPORTADOR DE REGISTROS JSON
+const importBox = document.createElement("section");
+importBox.style.cssText = "padding:20px;margin:20px 0;background:#171c2b;border:1px solid #343d55;border-radius:14px;";
+
+importBox.innerHTML = `
+  <h2>Importar registros Egg Radar</h2>
+  <p>Pega aquí la respuesta JSON completa:</p>
+  <textarea id="jsonInput" placeholder="Pega aquí el JSON..." style="width:100%;height:150px;background:#0d1220;color:white;padding:12px;border-radius:8px;"></textarea>
+  <br><br>
+  <button id="importButton" style="padding:12px 20px;border:0;border-radius:8px;cursor:pointer;">Importar JSON</button>
+  <p id="importStatus"></p>
+`;
+
+document.querySelector("main")?.prepend(importBox);
+
+document.getElementById("importButton").addEventListener("click", () => {
+  const status = document.getElementById("importStatus");
+
+  try {
+    const imported = JSON.parse(document.getElementById("jsonInput").value);
+
+    if (!Array.isArray(imported.targets)) {
+      throw new Error("El JSON no contiene una lista de objetivos válida.");
+    }
+
+    status.textContent = `JSON válido: ${imported.targets.length} registros de huevos encontrados.`;
+    status.style.color = "#55dd99";
+
+    console.log("Registros importados:", imported.targets);
+  } catch (error) {
+    status.textContent = "No se pudo importar: " + error.message;
+    status.style.color = "#ff7777";
+  }
+});
 </script>
 
 </body>
