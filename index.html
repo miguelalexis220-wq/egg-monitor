@@ -432,7 +432,24 @@ document.getElementById("importButton").addEventListener("click", () => {
     status.textContent = `JSON válido: ${imported.targets.length} registros de huevos encontrados.`;
     status.style.color = "#55dd99";
 
-    console.log("Registros importados:", imported.targets);
+activeEggs = imported.targets.map(egg => ({
+  animal: egg.animal,
+  area: egg.area,
+  rarity: egg.rarity,
+  best_scale: Number(egg.best_scale) || 0,
+  servers: (egg.servers || []).map(server => ({
+    scale: Number(server.scale) || 0,
+    players: server.players ?? 0,
+    maxPlayers: server.maxPlayers ?? 0,
+    age_s: server.age_s ?? 0,
+    mutations: server.mutations || [],
+    join: server.join || ""
+  }))
+}));
+
+render();
+
+status.textContent = `¡Importación correcta! ${activeEggs.length} huevos cargados.`;
   } catch (error) {
     status.textContent = "No se pudo importar: " + error.message;
     status.style.color = "#ff7777";
