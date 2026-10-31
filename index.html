@@ -400,7 +400,11 @@ box.innerHTML = `
   Antigüedad: ${server.age_s} segundos
 `;
 
-if (server.join && server.join.startsWith("https://")) {
+if (
+  server.join &&
+  (server.join.startsWith("https://") ||
+   server.join.startsWith("roblox://"))
+) {
   const link = document.createElement("a");
   link.href = server.join;
   link.textContent = "Abrir servidor en Roblox";
