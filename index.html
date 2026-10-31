@@ -388,12 +388,28 @@ function render() {
         const box = document.createElement("div");
         box.className = "server";
 
-        box.textContent =
-          `Servidor ${index + 1} · Escala ${server.scale.toFixed(3)} · ` +
-          `${server.players}/${server.maxPlayers} jugadores · ` +
-          `Hace ${server.age_s} s`;
+       const mutations = Array.isArray(server.mutations)
+  ? server.mutations.join(", ")
+  : server.mutations || "Sin mutaciones";
 
-        card.append(box);
+box.innerHTML = `
+  <strong>Servidor ${index + 1}</strong><br>
+  Escala: ${Number(server.scale).toFixed(3)}<br>
+  Mutaciones: ${mutations}<br>
+  Jugadores: ${server.players}/${server.maxPlayers}<br>
+  Antigüedad: ${server.age_s} segundos
+`;
+
+if (server.join && server.join.startsWith("https://")) {
+  const link = document.createElement("a");
+  link.href = server.join;
+  link.textContent = "Abrir servidor en Roblox";
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  box.append(document.createElement("br"), link);
+}
+
+card.append(box);
       });
 
     container.append(card);
