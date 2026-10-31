@@ -315,9 +315,9 @@ const search = document.getElementById("search");
 const rarity = document.getElementById("rarity");
 const sort = document.getElementById("sort");
 const container = document.getElementById("eggs");
-
-function render() {
  let data = activeEggs.filter(egg => {
+function render() {
+
     const term = search.value.toLowerCase();
 
     return (
