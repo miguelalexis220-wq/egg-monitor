@@ -317,7 +317,7 @@ const sort = document.getElementById("sort");
 const container = document.getElementById("eggs");
 
 function render() {
-  let data = demoEggs.filter(egg => {
+ let data = activeEggs.filter(egg => {
     const term = search.value.toLowerCase();
 
     return (
